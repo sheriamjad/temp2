@@ -2,6 +2,8 @@ import React from 'react';
 import './App.css';
 import { Profile, Home, SignUp, Create, SignIn } from './Containers/Index';
 import { Route, Routes } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -13,6 +15,7 @@ function App() {
         <Route path='/signup' element={<SignUp/>}></Route>
         <Route path='/create' element={<Create/>}></Route>
       </Routes>
+      <ToastContainer/>
     </>
   );
 };
