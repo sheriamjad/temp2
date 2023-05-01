@@ -18,12 +18,11 @@ contract Inscrible {
 
     //CHECK IS A USER HAS AN ACCOUNT
     function checkUser(address key) public view returns(bool){
-        for (uint256 i = 0; i < allRegisteredUsers.length; i++ ) {
-            if(allRegisteredUsers[i].userAddress == key){
-                return true;
-            }
+        if(allRegisteredUsers.length > 0)
+        return bytes(userList[key].username).length > 0;
+        else{
+            return false;
         }
-        return false;
     }
 
     //GET USER NAME

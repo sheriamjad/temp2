@@ -46,7 +46,7 @@ const SignUp = () => {
                     notify("User Already Exists. Go to SignIn !");
                   }
                   else{
-                    RegisterUser(input.username);
+                    await RegisterUser(input.username);
                     navigate('/');
                   }
                 }
