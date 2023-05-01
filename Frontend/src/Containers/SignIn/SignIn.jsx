@@ -50,17 +50,18 @@ const SignIn = () => {
                 <input type="text" placeholder='Metamask Account Address' className='signin-input' name='address' id='address' value={connectedAccount} disabled={true} />
 
                 <button type='submit' className='signin-button' disabled={!giveAccess} 
-                    onClick={()=>{
+                    onClick={ async ()=>{
                         if (input.username === "") {
                             notify("Please Enter Username!");
                             return;
                         }
                         else
                         {
-                            const isRegistered = CheckIfUserIsRegistered(connectedAccount);
+                            const isRegistered = await CheckIfUserIsRegistered(connectedAccount);
                             console.log(isRegistered);
                             if(isRegistered){
-                                const validUsername = ValidateUsername(input.username);
+                                const validUsername = await ValidateUsername(input.username);
+                                console.log(validUsername);
                                 if (validUsername) {
                                     setIsSignedin(true);
                                     navigate('/inscrible');

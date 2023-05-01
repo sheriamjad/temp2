@@ -18,16 +18,12 @@ contract Inscrible {
 
     //CHECK IS A USER HAS AN ACCOUNT
     function checkUser(address key) public view returns(bool){
-        // require(allRegisteredUsers.length > 0, "Userlist is empty");
-        for (uint256 i = 0; i < allRegisteredUsers.length; i++) {
+        for (uint256 i = 0; i < allRegisteredUsers.length; i++ ) {
             if(allRegisteredUsers[i].userAddress == key){
                 return true;
             }
-            else{
-                return false;
-            }
         }
-        return bytes(userList[key].username).length > 0;
+        return false;
     }
 
     //GET USER NAME

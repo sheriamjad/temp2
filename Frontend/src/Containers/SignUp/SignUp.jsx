@@ -36,12 +36,12 @@ const SignUp = () => {
             <input type="text" placeholder='Metamask Account Address' className='signup-input' id='address' disabled={true} value={connectedAccount}/>  
 
             <button className='signup-button'
-              onClick={()=>{
+              onClick={ async ()=>{
                 if (input.username === "") {
                   notify("Please Enter Username !");
                 }
                 else{
-                  const isRegistered = CheckIfUserIsRegistered(connectedAccount);
+                  const isRegistered = await CheckIfUserIsRegistered(connectedAccount);
                   if (isRegistered) {
                     notify("User Already Exists. Go to SignIn !");
                   }

@@ -13,8 +13,8 @@ const Home = () => {
     <>
       {isSignedin ? (
         <>
-        <Navbar />
-        <PostCard/>
+          <Navbar />
+          <PostCard/>
         </>
       ):
         navigate('/')
