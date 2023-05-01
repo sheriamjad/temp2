@@ -57,6 +57,18 @@
     background: rgb(3, 110, 255);
 }
 
+.link-signin{
+    display: flex;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.link-signin>span{
+    font-weight: 500;
+    cursor: pointer;
+    color: blue;
+}
+
 @media screen and (max-width: 360px) {
     .signup-container{
         width: 200px;

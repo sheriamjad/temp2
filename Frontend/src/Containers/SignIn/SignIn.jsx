@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 const SignIn = () => {
 
     const navigate = useNavigate();
-    const { isMetamask, connectedAccount, CheckIfUserIsRegistered } = useContext(InscribleContext);
+    const { isMetamask, connectedAccount, CheckIfUserIsRegistered, ValidateUsername, setIsSignedin } = useContext(InscribleContext);
 
     //TOAST FUNCTIONS
     const notify = (msg)=> toast.error(msg);
@@ -49,7 +49,34 @@ const SignIn = () => {
                 <label htmlFor="address" className='signin-lable'>Address :</label>
                 <input type="text" placeholder='Metamask Account Address' className='signin-input' name='address' id='address' value={connectedAccount} disabled={true} />
 
-                <button className='signin-button' disabled={!giveAccess} >Login</button>
+                <button type='submit' className='signin-button' disabled={!giveAccess} 
+                    onClick={()=>{
+                        if (input.username === "") {
+                            notify("Please Enter Username!");
+                            return;
+                        }
+                        else
+                        {
+                            const isRegistered = CheckIfUserIsRegistered(connectedAccount);
+                            console.log(isRegistered);
+                            if(isRegistered){
+                                const validUsername = ValidateUsername(input.username);
+                                if (validUsername) {
+                                    setIsSignedin(true);
+                                    navigate('/inscrible');
+                                }
+                                else{
+                                    notify("Please Enter Valid Username!");
+                                }
+                            }
+                            else{
+                                notify("Please Create Account First!");
+                            }
+                        }
+                    }}
+                >
+                    Login
+                </button>
             </div>
             <div className='link-signup'>
                 Create an account?

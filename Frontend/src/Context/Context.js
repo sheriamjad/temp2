@@ -35,7 +35,8 @@ export const InscribleProvider = ({ children }) => {
 
     const [isMetamask, setIsMetamask] = useState(true);
     const [connectedAccount, setConnectedAccount] = useState("");
-    const [isRegistered, setIsRegistered] = useState(false);
+    const [contract, setContract] = useState(null);
+    const [isSignedin, setIsSignedin] = useState(false);
 
     //FUNCTION TO GET THE CONNECTED ACCOUNT
     const ConnectWallet = async () => {
@@ -43,10 +44,10 @@ export const InscribleProvider = ({ children }) => {
             if (!window.ethereum) return setIsMetamask(false);
 
             window.ethereum.on("chainChanged", () => {
-                window.location.reload();
-              });
-              window.ethereum.on("accountsChanged", () => {
-                window.location.reload();
+                window.location.reload(true);
+            });
+            window.ethereum.on("accountsChanged", () => {
+                window.location.reload(true);
             });
             //GETTING ACCOUTNS ARRAY FROM ETHEREUM/METAMASK
             const accounts = await window.ethereum.request({
@@ -56,22 +57,45 @@ export const InscribleProvider = ({ children }) => {
             //GETTING FIRST ACCOUNT FROM ACCOUNTS ARRAY
             const firstAccount = accounts[0];
             setConnectedAccount(firstAccount);
+
+            const _contract = await CreateContract();
+
+            setContract(_contract);
         } 
         catch (error) {
             console.log(error);
         }
     };
 
+    const RegisterUser = async (username)=>{
+        const createdUser = await contract.createAccount(username);
+        await createdUser.wait();
+    };
+
     const CheckIfUserIsRegistered = async (account)=>{
-        const contract = await CreateContract();
-        await contract.wait();
-
-        const isUser = contract.checkUser(account);
-
+        const isUser = await contract.checkUser(account);
+        console.log(isUser);
         if (isUser) {
-          setIsRegistered(true);
+            return true;
+        }
+        else{
+            return false;
         }
     };
+
+    const ValidateUsername = async (username)=>{
+        const _username = await contract.getUsername(connectedAccount);
+
+        console.log(_username);
+        console.log(username);
+
+        if (username === _username) {
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
     useEffect(()=>{
         ConnectWallet();
@@ -81,10 +105,13 @@ export const InscribleProvider = ({ children }) => {
         <InscribleContext.Provider
             value={{
               ConnectWallet,
+              RegisterUser,
               CheckIfUserIsRegistered,
+              ValidateUsername,
+              setIsSignedin,
               isMetamask,
               connectedAccount,
-              isRegistered
+              isSignedin
             }}
         >
             {children}
