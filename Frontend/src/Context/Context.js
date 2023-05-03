@@ -37,6 +37,10 @@ export const InscribleProvider = ({ children }) => {
     const [connectedAccount, setConnectedAccount] = useState("");
     const [contract, setContract] = useState(null);
     const [isSignedin, setIsSignedin] = useState(false);
+    const [currentUsername, setCurrentUsername] = useState("");
+    const [allPosts, setAllPosts] = useState([]);
+    const [singleUserPost, setSingleUserPost] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     //FUNCTION TO GET THE CONNECTED ACCOUNT
     const ConnectWallet = async () => {
@@ -61,6 +65,7 @@ export const InscribleProvider = ({ children }) => {
             const _contract = await CreateContract();
 
             setContract(_contract);
+            // localStorage.removeItem('isSignedIn');
         } 
         catch (error) {
             console.log(error);
@@ -74,7 +79,6 @@ export const InscribleProvider = ({ children }) => {
 
     const CheckIfUserIsRegistered = async (account)=>{
         const isUser = await contract.checkUser(account);
-        console.log(isUser);
         if (isUser) {
             return true;
         }
@@ -86,16 +90,37 @@ export const InscribleProvider = ({ children }) => {
     const ValidateUsername = async (username)=>{
         const _username = await contract.getUsername(connectedAccount);
 
-        console.log(_username);
-        console.log(username);
-
         if (username === _username) {
+            setCurrentUsername(_username);
             return true;
         }
         else{
             return false;
         }
     }
+
+    const UploadPost = async (imageHash, caption, imageText)=>{
+        setIsLoading(true);
+        const uploaded = await contract.addPostImage(imageHash, caption, imageText);
+        await uploaded.wait();
+        setIsLoading(false);
+    };
+
+    const GetAllPosts = async ()=>{
+        setIsLoading(true);
+        const Posts = await contract.GetAllPosts();
+
+        setAllPosts(Posts);
+        setIsLoading(false);
+    };
+
+    const GetPostByUser = async (address)=>{
+        setIsLoading(true);
+        const Posts = await contract.getSingleUserPost(address);
+
+        setSingleUserPost(Posts);
+        setIsLoading(false);
+    };
 
     useEffect(()=>{
         ConnectWallet();
@@ -109,9 +134,17 @@ export const InscribleProvider = ({ children }) => {
               CheckIfUserIsRegistered,
               ValidateUsername,
               setIsSignedin,
+              UploadPost,
+              setIsLoading,
+              GetAllPosts,
+              GetPostByUser,
               isMetamask,
               connectedAccount,
-              isSignedin
+              isSignedin,
+              currentUsername,
+              allPosts,
+              singleUserPost,
+              isLoading
             }}
         >
             {children}

@@ -10,8 +10,27 @@ contract Inscrible {
         // string profilePic; do add later
     }
 
+    //POST COUNT
+    uint postCount = 0;
+
+    //CONTAINING ALL THE POSTS UPLOADED BY USERS
+    struct Post{
+        string createrName;
+        address payable userAddress;
+        string imageHash;
+        string caption;
+        string imageText;
+        uint256  tipAmount;
+        uint256 id;
+        uint likeCount;
+        string [] likedByUser;
+    }
+
+
     mapping(address=>User) userList;
     User [] allRegisteredUsers;
+    mapping(address=>Post[]) singleUserPostList;
+    Post [] allposts;
 
 
     //FUNCTIONS----------------------------
@@ -38,6 +57,40 @@ contract Inscrible {
         userList[msg.sender].username = _username;
         allRegisteredUsers.push(User(_username, msg.sender));
     }
+
+    //TO POST IMAGES TO BLOCKCHAIN
+    function addPostImage(string memory _imgHash, string memory desc, string memory imgText) public 
+    {   
+        require(checkUser(msg.sender), "User not registered!");
+        require(bytes(_imgHash).length > 0);
+        postCount++;
+        Post memory newPost = Post({
+            createrName: userList[msg.sender].username,
+            userAddress: payable(msg.sender),
+            imageHash: _imgHash,
+            caption: desc,
+            imageText: imgText,
+            tipAmount:0,
+            id:postCount,
+            likeCount:0,
+            likedByUser : new string[](0)         
+        });
+
+        singleUserPostList[msg.sender].push(newPost);
+        allposts.push(newPost);
+    }
+
+    function getAllPosts() public view returns(Post [] memory){
+        return allposts;
+    }
+
+    function getSingleUserPost(address key) public view returns(Post [] memory) {
+        return singleUserPostList[key];
+    }
+
+    function getSingleUserLatestPost(address key) public view returns(Post memory){
+        return  singleUserPostList[key][singleUserPostList[key].length-1]; 
+    } 
 
     receive() external payable {}
 }

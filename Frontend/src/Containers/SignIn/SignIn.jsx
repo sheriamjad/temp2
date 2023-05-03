@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 const SignIn = () => {
 
     const navigate = useNavigate();
-    const { isMetamask, connectedAccount, CheckIfUserIsRegistered, ValidateUsername, setIsSignedin } = useContext(InscribleContext);
+    const { isMetamask, connectedAccount, CheckIfUserIsRegistered, ValidateUsername, setIsSignedin, isSignedin } = useContext(InscribleContext);
 
     //TOAST FUNCTIONS
     const notify = (msg)=> toast.error(msg);
@@ -58,12 +58,11 @@ const SignIn = () => {
                         else
                         {
                             const isRegistered = await CheckIfUserIsRegistered(connectedAccount);
-                            console.log(isRegistered);
                             if(isRegistered){
                                 const validUsername = await ValidateUsername(input.username);
-                                console.log(validUsername);
                                 if (validUsername) {
                                     setIsSignedin(true);
+                                    localStorage.setItem('isSignedIn', JSON.stringify(isSignedin));
                                     navigate('/inscrible');
                                 }
                                 else{
