@@ -48,9 +48,12 @@ export const InscribleProvider = ({ children }) => {
             if (!window.ethereum) return setIsMetamask(false);
 
             window.ethereum.on("chainChanged", () => {
+                signInState(false);
                 window.location.reload(true);
             });
             window.ethereum.on("accountsChanged", () => {
+                signInState(false);
+                console.log("in wallet...........")
                 window.location.reload(true);
             });
             //GETTING ACCOUTNS ARRAY FROM ETHEREUM/METAMASK
@@ -86,6 +89,16 @@ export const InscribleProvider = ({ children }) => {
             return false;
         }
     };
+
+    const signInState = (state)=>{
+        setIsSignedin(state);
+        
+        localStorage.setItem('isSignedIn', JSON.stringify(state));
+    }
+
+    const getSignInState = ()=>{
+        return JSON.parse(localStorage.getItem('isSignedIn'));
+    }
 
     const ValidateUsername = async (username)=>{
         const _username = await contract.getUsername(connectedAccount);
@@ -132,6 +145,8 @@ export const InscribleProvider = ({ children }) => {
               ConnectWallet,
               RegisterUser,
               CheckIfUserIsRegistered,
+              signInState,
+              getSignInState,
               ValidateUsername,
               setIsSignedin,
               UploadPost,

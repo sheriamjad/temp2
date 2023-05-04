@@ -8,26 +8,35 @@ import { toast } from 'react-toastify';
 const Home = () => {
 
   const navigate = useNavigate();
-  const { GetPostByUser, isLoading, singleUserPost, connectedAccount } = useContext(InscribleContext);
+  const { GetPostByUser, isLoading, singleUserPost, connectedAccount, getSignInState } = useContext(InscribleContext);
 
   const notify= (msg)=> toast.error(msg);
+  const [isSigned, setIsSigned] = useState(false);
 
   useEffect(()=>{
     GetPostByUser(connectedAccount);
+    const state = getSignInState();
+    setIsSigned(state);
   },[]);
 
+  useEffect(() => {
+    if (!singleUserPost.length) {
+      notify("No Posts Yet !");
+      return;
+    }
+  }, [singleUserPost.length]);
+
   return (
-    <div>
-      {JSON.parse(localStorage.getItem('isSignedIn')) ? (
-        console.log("In home"),
+    <>
+      {isSigned ? (
+        console.log(isSigned),
         <>
           <Navbar />
-
           {isLoading ? 
             <Loader/> 
             :
             (singleUserPost.length > 0 ? 
-              singleUserPost.map((item)=>{
+              (singleUserPost.map((item)=>{
               return <PostCard 
                 username={item.createrName} 
                 address={item.userAddress} 
@@ -36,16 +45,16 @@ const Home = () => {
                 imageText={item.imageText}
                 likeCount={item.likeCount._hex}
                 key={item.id}/>;
-              })
+              }))
               :
-              notify("No Posts Yet !")            
+              null           
             )
           }
         </>
       ):
         navigate('/')
       }
-    </div>
+    </>
   );
 };
 
