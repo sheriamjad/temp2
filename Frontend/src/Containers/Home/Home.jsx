@@ -7,55 +7,73 @@ import { toast } from 'react-toastify';
 
 const Home = () => {
 
-  const navigate = useNavigate();
-  const { GetPostByUser, isLoading, singleUserPost, connectedAccount, getSignInState } = useContext(InscribleContext);
+    const navigate = useNavigate();
+    const { GetPostByUser, isLoading, singleUserPost, connectedAccount, getSignInState, ConnectWallet, contract } = useContext(InscribleContext);
 
-  const notify= (msg)=> toast.error(msg);
-  const [isSigned, setIsSigned] = useState(false);
+    const notify= (msg)=> toast.error(msg);
+    const [isSigned, setIsSigned] = useState(false);
 
-  useEffect(()=>{
-    GetPostByUser(connectedAccount);
-    const state = getSignInState();
-    setIsSigned(state);
-  },[]);
+    useEffect(()=>{
+        const state = getSignInState();
+        setIsSigned(state);
 
-  useEffect(() => {
-    if (!singleUserPost.length) {
-      notify("No Posts Yet !");
-      return;
-    }
-  }, [singleUserPost.length]);
+        const fetchdata = async ()=>{
+            await ConnectWallet();
+            await GetPostByUser(connectedAccount);
+        };
 
-  return (
-    <>
-      {isSigned ? (
-        console.log(isSigned),
+        fetchdata();
+
+    },[]);
+
+    useEffect(()=>{
+        const fetchdata = async ()=>{
+            await GetPostByUser(connectedAccount);
+        };
+
+        fetchdata();
+    },[connectedAccount, contract]);
+
+    const backToSignIn = ()=>{
+        if (!isSigned) {
+            navigate('/')
+        };
+    };
+
+    const noPostMsg = ()=>{
+        notify("No Posts Created Yet !");
+    };
+
+    return (
         <>
-          <Navbar />
-          {isLoading ? 
-            <Loader/> 
-            :
-            (singleUserPost.length > 0 ? 
-              (singleUserPost.map((item)=>{
-              return <PostCard 
-                username={item.createrName} 
-                address={item.userAddress} 
-                file={item.imageHash} 
-                caption={item.caption}
-                imageText={item.imageText}
-                likeCount={item.likeCount._hex}
-                key={item.id}/>;
-              }))
-              :
-              null           
+            {isSigned ? (
+                <>
+                    <Navbar />
+                    {isLoading ? <Loader /> : 
+                       (singleUserPost.length > 0 ? 
+                            (
+                            singleUserPost.map((item) => {
+                                return <PostCard 
+                                        username={item.createrName}
+                                        address={item.userAddress} 
+                                        file={item.imageHash}
+                                        caption={item.caption}
+                                        imageText={item.imageText}
+                                        likeCount={item.likeCount._hex}
+                                        key={item.id}
+                                       />
+                            }))  
+                            :
+                            noPostMsg()
+                       )
+                    }
+                </>
             )
-          }
+            :
+                backToSignIn()
+            }
         </>
-      ):
-        navigate('/')
-      }
-    </>
-  );
-};
+    );
+}
 
 export default Home;

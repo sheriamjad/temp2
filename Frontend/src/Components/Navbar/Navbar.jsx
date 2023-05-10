@@ -84,7 +84,7 @@ const Navbar = ({ childern }) => {
                 </div>
 
                 <div className="navbar-mobile-search-field">
-                    <span class="material-symbols-outlined">search</span>
+                    <span className="material-symbols-outlined">search</span>
                     <input type="text" className='navbar-mobile-search-field_input' placeholder='Search'></input>
                 </div>
             </div>
@@ -94,7 +94,7 @@ const Navbar = ({ childern }) => {
                     {
                         Menu.map((item, i) => (
                             <li className='navbar-mobile-menu_list-item' key={i}>
-                                <NavLink to={item.path} className='navbar-mobile-menu_list-item-link' activeclassName='active-b'>
+                                <NavLink to={item.path} className='navbar-mobile-menu_list-item-link' activeclassname='active-b'>
                                     {item.icon}
 
                                 </NavLink>
@@ -118,7 +118,7 @@ const Navbar = ({ childern }) => {
                         {
                             secondMenu.map((item, i) => (
                                 <li className="navbar-desktop-menu_list-item" key={i}>
-                                    <NavLink to={item.path} className="navbar-desktop-menu_list-item_link" activeclassName='active'>
+                                    <NavLink to={item.path} className="navbar-desktop-menu_list-item_link" activeclassname='active'>
                                         {item.icon}
                                         {item.element}
                                     </NavLink>
@@ -143,7 +143,7 @@ const Navbar = ({ childern }) => {
                         {
                             secondMenu.map((item, i) => (
                                 <li className="navbar-desktop-menu_list-item" key={i}>
-                                    <NavLink to={item.path} className="navbar-desktop-menu_list-item_link" activeclassName='active-b'>
+                                    <NavLink to={item.path} className="navbar-desktop-menu_list-item_link" activeclassname='active-b'>
                                         {item.icon}
                                     </NavLink>
                                 </li>

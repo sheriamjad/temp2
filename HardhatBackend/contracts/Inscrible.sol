@@ -85,11 +85,17 @@ contract Inscrible {
     }
 
     function getSingleUserPost(address key) public view returns(Post [] memory) {
-        return singleUserPostList[key];
+        if (singleUserPostList[key].length > 0) {
+            return singleUserPostList[key];
+        } else {
+            return new Post[](0);
+        }
     }
 
     function getSingleUserLatestPost(address key) public view returns(Post memory){
-        return  singleUserPostList[key][singleUserPostList[key].length-1]; 
+        
+            return  singleUserPostList[key][singleUserPostList[key].length-1]; 
+        
     } 
 
     receive() external payable {}

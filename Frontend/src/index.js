@@ -11,11 +11,11 @@ import { InscribleProvider } from './Context/Context';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <InscribleProvider>
-    <React.StrictMode>
+    {/* <React.StrictMode> */}
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </React.StrictMode>
+    {/* </React.StrictMode> */}
   </InscribleProvider>
 );
 

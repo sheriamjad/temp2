@@ -8,7 +8,7 @@ import axios from 'axios';
 
 const Create = () => {
 
-    const { currentUsername, UploadPost, isLoading, setIsLoading } = useContext(InscribleContext);
+    const { currentUsername, connectedAccount, UploadPost, isLoading, setIsLoading } = useContext(InscribleContext);
     const notify = (msg) => toast.error(msg);
 
     const navigate = useNavigate();
@@ -154,13 +154,13 @@ const Create = () => {
                                     </div>
                                     <div className="caption-div">
                                         <textarea name="caption" id="caption" placeholder='Write a caption...' onChange={handleInput} value={input.caption}></textarea>
-                                        <span class="material-symbols-outlined emoji-selector">
+                                        <span className="material-symbols-outlined emoji-selector">
                                             mood
                                         </span>
                                     </div>
                                     <div className="img-txt-div">
                                         <textarea name="imgTxt" id="imgTxt" placeholder='Add text on image...' onChange={handleInput} value={input.imgTxt}></textarea>
-                                        <span class="material-symbols-outlined emoji-selector">
+                                        <span className="material-symbols-outlined emoji-selector">
                                             mood
                                         </span>
                                     </div>

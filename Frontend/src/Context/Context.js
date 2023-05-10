@@ -68,7 +68,8 @@ export const InscribleProvider = ({ children }) => {
             const _contract = await CreateContract();
 
             setContract(_contract);
-            // localStorage.removeItem('isSignedIn');
+
+            console.log("Connect wallet called !!!");
         } 
         catch (error) {
             console.log(error);
@@ -128,16 +129,23 @@ export const InscribleProvider = ({ children }) => {
     };
 
     const GetPostByUser = async (address)=>{
+        console.log(contract);
+        console.log(address);
+        console.log(connectedAccount);
         setIsLoading(true);
         const Posts = await contract.getSingleUserPost(address);
-
+        console.log("Context post" + Posts);
+        console.log("Context post wait " + Posts);
         setSingleUserPost(Posts);
         setIsLoading(false);
     };
 
     useEffect(()=>{
-        ConnectWallet();
-    },[]);
+        const getAccount = async ()=>{
+            await ConnectWallet();
+        }
+        getAccount();
+    },[isMetamask]);
 
     return (
         <InscribleContext.Provider
@@ -155,6 +163,7 @@ export const InscribleProvider = ({ children }) => {
               GetPostByUser,
               isMetamask,
               connectedAccount,
+              contract,
               isSignedin,
               currentUsername,
               allPosts,
