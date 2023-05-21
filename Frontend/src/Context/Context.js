@@ -32,146 +32,187 @@ const CreateContract = async () => {
 
 //CREATING CONTEXT PROVIDER
 export const InscribleProvider = ({ children }) => {
+  const [isMetamask, setIsMetamask] = useState(true);
+  const [connectedAccount, setConnectedAccount] = useState("");
+  const [contract, setContract] = useState(null);
+  const [isSignedin, setIsSignedin] = useState(false);
+  const [currentUsername, setCurrentUsername] = useState("");
+  const [allPosts, setAllPosts] = useState([]);
+  const [singleUserPost, setSingleUserPost] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [userList, setUserLists] = useState([]);
+  const [friendLists, setFriendLists] = useState([]);
+  const [error, setError] = useState("");
 
-    const [isMetamask, setIsMetamask] = useState(true);
-    const [connectedAccount, setConnectedAccount] = useState("");
-    const [contract, setContract] = useState(null);
-    const [isSignedin, setIsSignedin] = useState(false);
-    const [currentUsername, setCurrentUsername] = useState("");
-    const [allPosts, setAllPosts] = useState([]);
-    const [singleUserPost, setSingleUserPost] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+  //FUNCTION TO GET THE CONNECTED ACCOUNT
+  const ConnectWallet = async () => {
+    try {
+      if (!window.ethereum) return setIsMetamask(false);
 
-    //FUNCTION TO GET THE CONNECTED ACCOUNT
-    const ConnectWallet = async () => {
-        try {
-            if (!window.ethereum) return setIsMetamask(false);
+      window.ethereum.on("chainChanged", () => {
+        signInState(false);
+        window.location.reload(true);
+      });
+      window.ethereum.on("accountsChanged", () => {
+        signInState(false);
+        console.log("in wallet...........");
+        window.location.reload(true);
+      });
+    
+      //GETTING ACCOUTNS ARRAY FROM ETHEREUM/METAMASK
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
 
-            window.ethereum.on("chainChanged", () => {
-                signInState(false);
-                window.location.reload(true);
-            });
-            window.ethereum.on("accountsChanged", () => {
-                signInState(false);
-                console.log("in wallet...........")
-                window.location.reload(true);
-            });
-            //GETTING ACCOUTNS ARRAY FROM ETHEREUM/METAMASK
-            const accounts = await window.ethereum.request({
-              method: "eth_requestAccounts",
-            });
+      //GETTING FIRST ACCOUNT FROM ACCOUNTS ARRAY
+      const firstAccount = accounts[0];
+      setConnectedAccount(firstAccount);
 
-            //GETTING FIRST ACCOUNT FROM ACCOUNTS ARRAY
-            const firstAccount = accounts[0];
-            setConnectedAccount(firstAccount);
+      const _contract = await CreateContract();
 
-            const _contract = await CreateContract();
+      setContract(_contract);
 
-            setContract(_contract);
-
-            console.log("Connect wallet called !!!");
-        } 
-        catch (error) {
-            console.log(error);
-        }
-    };
-
-    const RegisterUser = async (username)=>{
-        const createdUser = await contract.createAccount(username);
-        await createdUser.wait();
-    };
-
-    const CheckIfUserIsRegistered = async (account)=>{
-        const isUser = await contract.checkUser(account);
-        if (isUser) {
-            return true;
-        }
-        else{
-            return false;
-        }
-    };
-
-    const signInState = (state)=>{
-        setIsSignedin(state);
-        
-        localStorage.setItem('isSignedIn', JSON.stringify(state));
+      console.log("Connect wallet called !!!");
+      const friendLists = await _contract.getMyFriendList();
+      setFriendLists(friendLists);
+      console.log(friendLists);
+    } catch (error) {
+      console.log(error);
     }
+  };
+  //ADD YOUR FRIENDS
+const addFriends = async ({ name, accountAddress }) => {
+  try {
 
-    const getSignInState = ()=>{
-        return JSON.parse(localStorage.getItem('isSignedIn'));
+    // const contract = await ConnectWallet();
+    const addMyFriend = await contract.addFriend(accountAddress, name);
+    await addMyFriend.wait();
+  
+  } catch (error) {
+    setError("Something went wrong while adding friends, try again");
+  }
+};
+const removeFriends = async ({ name, accountAddress }) => {
+  try {
+    // const contract = await ConnectWallet();
+    const removeMyFriend = await contract.removeFriend(accountAddress);
+    await removeMyFriend.wait();
+  } catch (error) {
+    setError("Something went wrong while adding friends, try again");
+  }
+};
+
+  const RegisterUser = async (username) => {
+    const createdUser = await contract.createAccount(username);
+    await createdUser.wait();
+  };
+
+  const CheckIfUserIsRegistered = async (account) => {
+    const isUser = await contract.checkUser(account);
+    if (isUser) {
+      return true;
+    } else {
+      return false;
     }
+  };
 
-    const ValidateUsername = async (username)=>{
-        const _username = await contract.getUsername(connectedAccount);
+  const signInState = (state) => {
+    setIsSignedin(state);
 
-        if (username === _username) {
-            setCurrentUsername(_username);
-            return true;
-        }
-        else{
-            return false;
-        }
+    localStorage.setItem("isSignedIn", JSON.stringify(state));
+  };
+  const getAllAppUser = async () => {
+    console.log("GetAllUser function called");
+
+    setIsLoading(true);
+    const userList = await contract.getAllAppUser();
+    // console.log(userList[1].accountAddress);
+    setUserLists(userList);
+
+    console.log("userList");
+
+    setIsLoading(false);
+  };
+  const getSignInState = () => {
+    return JSON.parse(localStorage.getItem("isSignedIn"));
+  };
+
+  const ValidateUsername = async (username) => {
+    const _username = await contract.getUsername(connectedAccount);
+
+    if (username === _username) {
+      setCurrentUsername(_username);
+      return true;
+    } else {
+      return false;
     }
+  };
 
-    const UploadPost = async (imageHash, caption, imageText)=>{
-        setIsLoading(true);
-        const uploaded = await contract.addPostImage(imageHash, caption, imageText);
-        await uploaded.wait();
-        setIsLoading(false);
+  const UploadPost = async (imageHash, caption, imageText) => {
+    setIsLoading(true);
+    const uploaded = await contract.addPostImage(imageHash, caption, imageText);
+    await uploaded.wait();
+    setIsLoading(false);
+  };
+
+  const GetAllPosts = async () => {
+    setIsLoading(true);
+    const Posts = await contract.GetAllPosts();
+
+    setAllPosts(Posts);
+    setIsLoading(false);
+  };
+
+  const GetPostByUser = async (address) => {
+    console.log(contract);
+    console.log(address);
+    console.log(connectedAccount);
+    setIsLoading(true);
+    const Posts = await contract.getSingleUserPost(address);
+    console.log("Context post" + Posts);
+    console.log("Context post wait " + Posts);
+    setSingleUserPost(Posts);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    const getAccount = async () => {
+      await ConnectWallet();
     };
+    getAccount();
+  }, [isMetamask]);
 
-    const GetAllPosts = async ()=>{
-        setIsLoading(true);
-        const Posts = await contract.GetAllPosts();
-
-        setAllPosts(Posts);
-        setIsLoading(false);
-    };
-
-    const GetPostByUser = async (address)=>{
-        console.log(contract);
-        console.log(address);
-        console.log(connectedAccount);
-        setIsLoading(true);
-        const Posts = await contract.getSingleUserPost(address);
-        console.log("Context post" + Posts);
-        console.log("Context post wait " + Posts);
-        setSingleUserPost(Posts);
-        setIsLoading(false);
-    };
-
-    useEffect(()=>{
-        const getAccount = async ()=>{
-            await ConnectWallet();
-        }
-        getAccount();
-    },[isMetamask]);
-
-    return (
-        <InscribleContext.Provider
-            value={{
-              ConnectWallet,
-              RegisterUser,
-              CheckIfUserIsRegistered,
-              signInState,
-              getSignInState,
-              ValidateUsername,
-              setIsSignedin,
-              UploadPost,
-              setIsLoading,
-              GetAllPosts,
-              GetPostByUser,
-              isMetamask,
-              connectedAccount,
-              contract,
-              isSignedin,
-              currentUsername,
-              allPosts,
-              singleUserPost,
-              isLoading
-            }}
-        >
-            {children}
-        </InscribleContext.Provider>
-    );
+  return (
+    <InscribleContext.Provider
+      value={{
+        ConnectWallet,
+        RegisterUser,
+        CheckIfUserIsRegistered,
+        signInState,
+        getSignInState,
+        ValidateUsername,
+        setIsSignedin,
+        UploadPost,
+        setIsLoading,
+        GetAllPosts,
+        GetPostByUser,
+        getAllAppUser,
+        setFriendLists,
+        addFriends,
+        removeFriends,
+        isMetamask,
+        connectedAccount,
+        contract,
+        isSignedin,
+        currentUsername,
+        allPosts,
+        singleUserPost,
+        isLoading,
+        friendLists, 
+        userList,
+      }}
+    >
+      {children}
+    </InscribleContext.Provider>
+  );
 };

@@ -34,14 +34,14 @@ const ProfilePosts = () => {
             </div>
             {isUserPosts && (
                 arr.map((item, i) => {
-                    return <PostCard src={item} key={i}/>
+                    // return <PostCard src={item} key={i}/>
                 })
 
             )}
 
             {isSavedPosts && (
                 arr2.map((item, i) => {
-                    return <PostCard src={item} key={i}/>
+                    // return <PostCard src={item} key={i}/>
                 })
             )}
         </>
