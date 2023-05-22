@@ -7,6 +7,8 @@ contract Inscrible {
     struct User{
         string username;
         friend[] friendList;
+        //chawala
+        Post [] myPosts;
         // string profilePic; do add later
     }
 
@@ -23,6 +25,9 @@ contract Inscrible {
     }
     //POST COUNT
     uint postCount = 0;
+    ///Friend list
+   
+    mapping(address=>Post[]) AllFriendPosts;
 
     //CONTAINING ALL THE POSTS UPLOADED BY USERS
     struct Post{
@@ -69,28 +74,29 @@ contract Inscrible {
         AllUsers.push(AllUserStruck(_username, msg.sender));
     }
     //addFriend
-     function addFriend(address friend_key, string calldata name) external{
+     function addFriend(address friend_key) external{
         require(checkUser(msg.sender), "Create an account first");
         require(checkUser(friend_key), "User is not registered!");
         require(msg.sender != friend_key, "Users cannot add themeselves as friends");
-        require(checkAlreadyFriends(msg.sender, friend_key)== false, "These users are already friends");
+        require(checkAlreadyFriends(msg.sender,friend_key)== false, "These users are already friends");
 
-        _addFriend(msg.sender, friend_key, name);
-        _addFriend(friend_key, msg.sender, userList[msg.sender].username);
+        // _addFriend(msg.sender, friend_key, name);
+         _addFriend(friend_key, msg.sender, userList[msg.sender].username);
+         for(uint256 i=0;i<userList[friend_key].myPosts.length;i++)
+         {
+            singleUserPostList[msg.sender].push(userList[friend_key].myPosts[i]);
+         }
+
     }
 
     //checkAlreadyFriend
-    function checkAlreadyFriends(address pubkey1, address pubkey2) internal view returns (bool){
+    function checkAlreadyFriends(address sender_key,address friend_key) internal view returns (bool){
 
-        if(userList[pubkey1].friendList.length > userList[pubkey2].friendList.length){
-            address tmp = pubkey1;
-            pubkey1 = pubkey2;
-            pubkey2 = tmp;
-        }
+        
 
-        for(uint256 i = 0; i < userList[pubkey1].friendList.length; i++){
+        for(uint256 i = 0; i < userList[sender_key].friendList.length; i++){
             
-            if(userList[pubkey1].friendList[i].pubkey == pubkey2) return true;
+            if(userList[sender_key].friendList[i].pubkey == friend_key) return true;
         }
         return false;
     }
@@ -123,10 +129,19 @@ contract Inscrible {
             likeCount:0,
             likedByUser : new string[](0)         
         });
-
-        singleUserPostList[msg.sender].push(newPost);
+            
+        for(uint256 i = 0; i < userList[msg.sender].friendList.length; i++){
+              singleUserPostList[userList[msg.sender].friendList[i].pubkey].push(newPost);
+         } 
+        userList[msg.sender].myPosts.push(newPost);
+        // singleUserPostList[msg.sender].push(newPost);
         allposts.push(newPost);
+        // _AllFriendPosts();
     }
+
+
+
+    
 
     function getAllPosts() public view returns(Post [] memory){
         return allposts;
@@ -170,6 +185,27 @@ contract Inscrible {
             userList[msg.sender].friendList.pop();
     }
     }
+
+
+
+    ////friends posts 
+
+    //  function _AllFriendPosts()  internal {
+    //     address friendAddress;
+    //     Post [] memory postArray;
+    //     require(userList[msg.sender].friendList.length >0, "You have no friends" );
+    //     for (uint256 i = 0; i < userList[msg.sender].friendList.length; i++){
+    //     friendAddress = userList[msg.sender].friendList[i].pubkey;
+    //     postArray=getSingleUserPost(friendAddress);
+    //     for (uint256 j = 0; j <postArray.length; j++){
+    //         AllFriendPosts[msg.sender].push(postArray[j]);
+    //     }
+    //    }  
+    // }
+
+    //   function getAllFriendPosts() public view returns (Post[] memory){
+    //      return AllFriendPosts[msg.sender];
+    //    }
 
     
     receive() external payable {}

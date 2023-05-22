@@ -67,10 +67,17 @@ const Search = () => {
             <Loader />
           ) : userList.length > 0 ? (
             <>
-             
               {userList
+
+                .filter(
+                  (user) =>
+                    user.accountAddress.toLowerCase() !==
+                    connectedAccount.toLowerCase()
+                )
                 .filter((user) =>
-                  user.username.toLowerCase().includes(query.toLowerCase())
+                  user.accountAddress
+                    .toLowerCase()
+                    .includes(query.toLowerCase())
                 )
                 .map((item) => (
                   <SearchCard

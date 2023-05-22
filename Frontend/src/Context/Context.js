@@ -1,34 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
-import { contractABI, contractAddress } from './Constants';
+import { contractABI, contractAddress } from "./Constants";
 
 //CREATING CONTEXT
 export const InscribleContext = React.createContext();
 
-
 const FetchContract = (signerProvider) =>
-    new ethers.Contract(contractAddress, contractABI, signerProvider);
+  new ethers.Contract(contractAddress, contractABI, signerProvider);
 
 //FUNCTION TO CREATE CONTRACT
 const CreateContract = async () => {
-    try {
-        //CREATING A ETHEREUM PROVIDER AND GETTING THE SIGNER
-        const web3modal = new Web3Modal();
-        const connection = await web3modal.connect();
-        const provider = new ethers.providers.Web3Provider(connection);
-        const signer = provider.getSigner();
+  try {
+    //CREATING A ETHEREUM PROVIDER AND GETTING THE SIGNER
+    const web3modal = new Web3Modal();
+    const connection = await web3modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
 
-        //SENDING THE SIGNER TO FetchContract FUNCTION TO GET THE SMART CONTRACT
-        const contract = FetchContract(signer);
+    //SENDING THE SIGNER TO FetchContract FUNCTION TO GET THE SMART CONTRACT
+    const contract = FetchContract(signer);
 
-        return contract;
-    } 
-    catch (error) {
-        console.log(error);
-    }
+    return contract;
+  } catch (error) {
+    console.log(error);
+  }
 };
-
 
 //CREATING CONTEXT PROVIDER
 export const InscribleProvider = ({ children }) => {
@@ -58,7 +55,7 @@ export const InscribleProvider = ({ children }) => {
         console.log("in wallet...........");
         window.location.reload(true);
       });
-    
+
       //GETTING ACCOUTNS ARRAY FROM ETHEREUM/METAMASK
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
@@ -71,36 +68,39 @@ export const InscribleProvider = ({ children }) => {
       const _contract = await CreateContract();
 
       setContract(_contract);
-
-      console.log("Connect wallet called !!!");
-      const friendLists = await _contract.getMyFriendList();
-      setFriendLists(friendLists);
-      console.log(friendLists);
     } catch (error) {
       console.log(error);
     }
   };
   //ADD YOUR FRIENDS
-const addFriends = async ({ name, accountAddress }) => {
-  try {
-
-    // const contract = await ConnectWallet();
-    const addMyFriend = await contract.addFriend(accountAddress, name);
-    await addMyFriend.wait();
-  
-  } catch (error) {
-    setError("Something went wrong while adding friends, try again");
-  }
-};
-const removeFriends = async ({ name, accountAddress }) => {
-  try {
-    // const contract = await ConnectWallet();
-    const removeMyFriend = await contract.removeFriend(accountAddress);
-    await removeMyFriend.wait();
-  } catch (error) {
-    setError("Something went wrong while adding friends, try again");
-  }
-};
+  const addFriends = async ({ accountAddress }) => {
+    try {
+      // const contract = await ConnectWallet();
+      const addMyFriend = await contract.addFriend(accountAddress);
+      await addMyFriend.wait();
+      console.log("Connect wallet called !!!");
+      const friendLists = await contract.getMyFriendList();
+      setFriendLists(friendLists);
+      console.log("this is from connect wallet FriendList");
+      console.log(friendLists);
+    } catch (error) {
+      setError("Something went wrong while adding friends, try again");
+    }
+  };
+  const removeFriends = async ({ name, accountAddress }) => {
+    try {
+      // const contract = await ConnectWallet();
+      const removeMyFriend = await contract.removeFriend(accountAddress);
+      await removeMyFriend.wait();
+      console.log("Connect wallet called !!!");
+      const friendLists = await contract.getMyFriendList();
+      setFriendLists(friendLists);
+      console.log("this is from connect wallet FriendList");
+      console.log(friendLists);
+    } catch (error) {
+      setError("Something went wrong while adding friends, try again");
+    }
+  };
 
   const RegisterUser = async (username) => {
     const createdUser = await contract.createAccount(username);
@@ -169,6 +169,8 @@ const removeFriends = async ({ name, accountAddress }) => {
     console.log(connectedAccount);
     setIsLoading(true);
     const Posts = await contract.getSingleUserPost(address);
+    console.log("possssssssssssssst");
+    console.log(Posts);
     console.log("Context post" + Posts);
     console.log("Context post wait " + Posts);
     setSingleUserPost(Posts);
@@ -208,7 +210,7 @@ const removeFriends = async ({ name, accountAddress }) => {
         allPosts,
         singleUserPost,
         isLoading,
-        friendLists, 
+        friendLists,
         userList,
       }}
     >

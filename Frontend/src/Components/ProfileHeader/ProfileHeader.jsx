@@ -35,6 +35,23 @@ const ProfileHeader = ({}) => {
   ];
   const { username, address } = useParams();
 
+  // Function to handle the follow/unfollow action
+  const handleFollowToggle = () => {
+    if (isFollowing) {
+      // Perform the unfollow action
+      // ...
+      removeFriends({ name: username, accountAddress: address });
+
+      setIsFollowing(false); // Update the state to reflect unfollowing
+    } else {
+      // Perform the follow action
+      // ...
+      addFriends({ name: username, accountAddress: address });
+
+      setIsFollowing(true); // Update the state to reflect following
+    }
+  };
+
   return (
     <>
       <div className="profile-header">
@@ -51,19 +68,8 @@ const ProfileHeader = ({}) => {
             <p id="profile-name" className="bold-5 size-l">
               {username}
             </p>
-            <button
-              onClick={() =>
-                addFriends({ name: username, accountAddress: address })
-              }
-            >
-              Follow
-            </button>
-            <button
-              onClick={() =>
-                removeFriends({ name: username, accountAddress: address })
-              }
-            >
-              UnFollow
+            <button onClick={handleFollowToggle}>
+              {isFollowing ? "Unfollow" : "Follow"}
             </button>
           </div>
           <div className="profile-header_content-info">
