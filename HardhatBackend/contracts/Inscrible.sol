@@ -74,14 +74,14 @@ contract Inscrible {
         AllUsers.push(AllUserStruck(_username, msg.sender));
     }
     //addFriend
-     function addFriend(address friend_key) external{
+     function addFriend(address friend_key,string calldata name) external{
         require(checkUser(msg.sender), "Create an account first");
         require(checkUser(friend_key), "User is not registered!");
         require(msg.sender != friend_key, "Users cannot add themeselves as friends");
         require(checkAlreadyFriends(msg.sender,friend_key)== false, "These users are already friends");
 
-        // _addFriend(msg.sender, friend_key, name);
-         _addFriend(friend_key, msg.sender, userList[msg.sender].username);
+         _addFriend(msg.sender, friend_key, name);
+        //  _addFriend(friend_key, msg.sender, userList[msg.sender].username);
          for(uint256 i=0;i<userList[friend_key].myPosts.length;i++)
          {
             singleUserPostList[msg.sender].push(userList[friend_key].myPosts[i]);
@@ -90,9 +90,7 @@ contract Inscrible {
     }
 
     //checkAlreadyFriend
-    function checkAlreadyFriends(address sender_key,address friend_key) internal view returns (bool){
-
-        
+    function checkAlreadyFriends(address sender_key,address friend_key) public view returns (bool){
 
         for(uint256 i = 0; i < userList[sender_key].friendList.length; i++){
             

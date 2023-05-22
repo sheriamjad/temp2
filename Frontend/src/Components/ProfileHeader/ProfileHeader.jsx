@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./ProfileHeader.css";
 import { ProfilePosts, ProfileUserCard } from "../Index";
 import { useLocation } from "react-router-dom";
@@ -9,7 +9,15 @@ const ProfileHeader = ({}) => {
   const [isPost, setIsPost] = useState(true);
   const [isFollower, setIsFollower] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const { userLists, addFriends, removeFriends } = useContext(InscribleContext);
+  const {
+    userLists,
+    addFriends,
+    removeFriends,
+    checkAlreadyFriend,
+    ConnectWallet,
+    connectedAccount,
+    contract,
+  } = useContext(InscribleContext);
 
   const users = [
     {
@@ -51,6 +59,35 @@ const ProfileHeader = ({}) => {
       setIsFollowing(true); // Update the state to reflect following
     }
   };
+  useEffect(() => {
+    const checkFriends = async () => {
+      await checkAlreadyFriend({
+        connectedAccountAddress: connectedAccount,
+        accountAddress: address,
+      });
+    };
+
+    checkFriends();
+  }, [connectedAccount, contract]);
+
+  // useEffect(() => {
+  //   const checkFriends = async () => {
+  //     try {
+  //       await ConnectWallet();
+  //       const checkUserFriend = await checkAlreadyFriend(
+  //         connectedAccount,
+  //         address
+  //       );
+  //       console.log("checkUserFriend: ", checkUserFriend);
+  //       setIsFollowing(checkUserFriend);
+  //     } catch (error) {
+  //       console.error("Error occurred while checking friends:", error);
+  //       // Handle the error appropriately, such as setting an error state
+  //     }
+  //   };
+
+  //   checkFriends();
+  // }, []);
 
   return (
     <>

@@ -73,20 +73,46 @@ export const InscribleProvider = ({ children }) => {
     }
   };
   //ADD YOUR FRIENDS
-  const addFriends = async ({ accountAddress }) => {
+  const addFriends = async ({ name, accountAddress }) => {
     try {
       // const contract = await ConnectWallet();
-      const addMyFriend = await contract.addFriend(accountAddress);
+      const addMyFriend = await contract.addFriend(accountAddress, name);
       await addMyFriend.wait();
       console.log("Connect wallet called !!!");
-      const friendLists = await contract.getMyFriendList();
-      setFriendLists(friendLists);
+      const friendLists1 = await contract.getMyFriendList();
+      setFriendLists(friendLists1);
       console.log("this is from connect wallet FriendList");
-      console.log(friendLists);
+      console.log(friendLists1);
     } catch (error) {
       setError("Something went wrong while adding friends, try again");
     }
   };
+
+  const checkAlreadyFriend = async ({
+    connectedAccountAddress,
+    accountAddress,
+  }) => {
+    try {
+      console.log(contract);
+      console.log(connectedAccountAddress + "          " + accountAddress);
+      const checkFriend = await contract.checkAlreadyFriends(
+        connectedAccountAddress,
+        accountAddress
+      );
+      console.log("is friends " + checkFriend);
+
+      console.log("is friends " + checkFriend);
+      return checkFriend;
+    } catch (error) {
+      console.log(error);
+      setError("Something went wrong while adding friends, try again");
+      console.log("Something went wrong while adding friends, try again");
+      return false;
+    }
+  };
+
+  //check is user already exits
+
   const removeFriends = async ({ name, accountAddress }) => {
     try {
       // const contract = await ConnectWallet();
@@ -212,6 +238,7 @@ export const InscribleProvider = ({ children }) => {
         isLoading,
         friendLists,
         userList,
+        checkAlreadyFriend,
       }}
     >
       {children}
