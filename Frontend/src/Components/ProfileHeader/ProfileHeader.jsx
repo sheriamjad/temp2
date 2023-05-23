@@ -43,33 +43,36 @@ const ProfileHeader = ({}) => {
   ];
   const { username, address } = useParams();
 
-  // Function to handle the follow/unfollow action
-  const handleFollowToggle = () => {
-    if (isFollowing) {
-      // Perform the unfollow action
-      // ...
-      removeFriends({ name: username, accountAddress: address });
-
-      setIsFollowing(false); // Update the state to reflect unfollowing
-    } else {
-      // Perform the follow action
-      // ...
-      addFriends({ name: username, accountAddress: address });
-
-      setIsFollowing(true); // Update the state to reflect following
-    }
-  };
   useEffect(() => {
     const checkFriends = async () => {
-      await checkAlreadyFriend({
+      const followingStatus = await checkAlreadyFriend({
         connectedAccountAddress: connectedAccount,
         accountAddress: address,
       });
+      setIsFollowing(followingStatus);
     };
 
     checkFriends();
   }, [connectedAccount, contract]);
 
+
+  // Function to handle the follow/unfollow action
+  const handleFollowToggle = () => {
+    if (isFollowing) {
+      // Perform the unfollow action
+      // ...
+      removeFriends({ accountAddress: address });
+
+      setIsFollowing(false); // Update the state to reflect unfollowing
+    } else {
+      // Perform the follow action
+      // ...
+      addFriends({ accountAddress: address });
+
+      setIsFollowing(true); // Update the state to reflect following
+    }
+  };
+  
   // useEffect(() => {
   //   const checkFriends = async () => {
   //     try {
@@ -115,9 +118,9 @@ const ProfileHeader = ({}) => {
               <span
                 className={isPost ? "bold-7" : ""}
                 onClick={() => {
-                  setIsFollower(false);
-                  setIsFollowing(false);
-                  setIsPost(true);
+                  // setIsFollower(false);
+                  // setIsFollowing(false);
+                   setIsPost(true);
                 }}
               >
                 {" "}
@@ -126,12 +129,28 @@ const ProfileHeader = ({}) => {
             </div>
             <div>
               <span className="bold-5">12</span>
-              <span
-                className={isFollower ? "bold-7" : ""}
+              <span className={isFollower ? "bold-7" : ""}
+
                 onClick={() => {
-                  setIsFollower(true);
-                  setIsFollowing(false);
-                  setIsPost(false);
+                  {isFollower && (
+                    <div className="profile-usercard-container">
+                      <div className="profile-usercard-header">
+                        <h3>Following</h3>
+                      </div>
+                      <div className="profile-usercard-body">
+                        {users.map((item, i) => {
+                          return (
+                            <ProfileUserCard
+                              userName={item.name}
+                              profilePic={item.pic}
+                              address={item.address}
+                              key={i}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 }}
               >
                 {" "}
@@ -143,9 +162,25 @@ const ProfileHeader = ({}) => {
               <span
                 className={isFollowing ? "bold-7" : ""}
                 onClick={() => {
-                  setIsFollower(false);
-                  setIsFollowing(true);
-                  setIsPost(false);
+                  {isFollowing && (
+                    <div className="profile-usercard-container">
+                      <div className="profile-usercard-header">
+                        <h3>Following</h3>
+                      </div>
+                      <div className="profile-usercard-body">
+                        {users.map((item, i) => {
+                          return (
+                            <ProfileUserCard
+                              userName={item.name}
+                              profilePic={item.pic}
+                              address={item.address}
+                              key={i}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 }}
               >
                 {" "}
@@ -158,7 +193,7 @@ const ProfileHeader = ({}) => {
 
       {isPost && <ProfilePosts />}
 
-      {isFollower && (
+      {/* {isFollower && (
         <div className="profile-usercard-container">
           <div className="profile-usercard-header">
             <h3>Followers</h3>
@@ -176,9 +211,9 @@ const ProfileHeader = ({}) => {
             })}
           </div>
         </div>
-      )}
+      )} */}
 
-      {isFollowing && (
+      {/* {isFollowing && (
         <div className="profile-usercard-container">
           <div className="profile-usercard-header">
             <h3>Following</h3>
@@ -196,7 +231,7 @@ const ProfileHeader = ({}) => {
             })}
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 };
