@@ -17,20 +17,13 @@ contract Inscrible {
         string username;
         address accountAddress;
     }
-
-    AllUserStruck[] AllUsers;
     
    struct friend{
         address pubkey;
         string name;
     }
-    //POST COUNT
-    uint postCount = 0;
-    ///Friend list
-   
-    mapping(address=>Post[]) AllFriendPosts;
 
-    //CONTAINING ALL THE POSTS UPLOADED BY USERS
+      //CONTAINING ALL THE POSTS UPLOADED BY USERS
     struct Post{
         string createrName;
         address payable userAddress;
@@ -43,7 +36,11 @@ contract Inscrible {
         string [] likedByUser;
     }
 
-
+    AllUserStruck[] AllUsers;
+    //POST COUNT
+    uint postCount = 0;
+    
+    mapping(address=>Post[]) AllPostsMapping;
     mapping(address=>User) userList;
     // User [] allRegisteredUsers;
     mapping(address=>Post[]) singleUserPostList;
@@ -104,7 +101,7 @@ contract Inscrible {
     }
     //_AddFriend
     function _addFriend(address following_key, address me, string memory name) internal{
-        friend memory newFollower = friend(me, name);
+       friend memory newFollower = friend(me, name);
         userList[following_key].followersList.push(newFollower);
 
         friend memory newFollowing = friend(following_key, userList[following_key].username);
@@ -162,11 +159,11 @@ contract Inscrible {
     }
 
     //GETMY FRIEND
-    function getMyFollowersList() external view returns(friend[] memory){
-        return userList[msg.sender].followersList;
+    function getMyFollowersList(address user) external view returns(friend [] memory){
+        return userList[user].followersList;
     }
-    function getMyFollowingsList() external view returns(friend[] memory){
-        return userList[msg.sender].followingsList;
+    function getMyFollowingsList(address user) external view returns(friend[] memory){
+        return userList[user].followingsList;
     }
 
     //TO POST IMAGES TO BLOCKCHAIN
@@ -174,7 +171,7 @@ contract Inscrible {
     {   
         require(checkUser(msg.sender), "User not registered!");
         require(bytes(_imgHash).length > 0);
-        postCount++;
+        postCount=postCount+1;
         Post memory newPost = Post({
             createrName: userList[msg.sender].username,
             userAddress: payable(msg.sender),
@@ -187,12 +184,16 @@ contract Inscrible {
             likedByUser : new string[](0)         
         });
             
-        for(uint256 i = 0; i < userList[msg.sender].followersList.length; i++){
-              singleUserPostList[userList[msg.sender].followersList[i].pubkey].push(newPost);
-         } 
+        // for(uint256 i = 0; i < userList[msg.sender].followersList.length; i++){
+        //     singleUserPostList[userList[msg.sender].followersList[i]].push(newPost);
+        //  } 
         userList[msg.sender].myPosts.push(newPost);
         // singleUserPostList[msg.sender].push(newPost);
         allposts.push(newPost);
+        //singleUserPostList[msg.sender].push(newPost);
+        
+        
+        //AllPostsMapping[msg.sender].push(newPost);
         // _AllFriendPosts();
     }
 
@@ -204,38 +205,112 @@ contract Inscrible {
         return AllUsers;
     }
 
-    function getSingleUserPost(address key) public view returns(Post [] memory) {
-        if (singleUserPostList[key].length > 0) {
-            return singleUserPostList[key];
-        } else {
-            return new Post[](0);
-        }
-    }
-
-    function getSingleUserLatestPost(address key) public view returns(Post memory){
-        
-            return  singleUserPostList[key][singleUserPostList[key].length-1]; 
-        
-    } 
-    ////friends posts 
-
-    //  function _AllFriendPosts()  internal {
-    //     address friendAddress;
-    //     Post [] memory postArray;
-    //     require(userList[msg.sender].followersList.length >0, "You have no friends" );
-    //     for (uint256 i = 0; i < userList[msg.sender].followersList.length; i++){
-    //     friendAddress = userList[msg.sender].followersList[i].pubkey;
-    //     postArray=getSingleUserPost(friendAddress);
-    //     for (uint256 j = 0; j <postArray.length; j++){
-    //         AllFriendPosts[msg.sender].push(postArray[j]);
+    // function getSingleUserPost(address key) public view returns(Post [] memory) {
+    //     if (singleUserPostList[key].length > 0) {
+    //         return singleUserPostList[key];
+    //     } else {
+    //         return new Post[](0);
     //     }
-    //    }  
     // }
 
-    //   function getAllFriendPosts() public view returns (Post[] memory){
-    //      return AllFriendPosts[msg.sender];
-    //    }
+    // function getSingleUserLatestPost(address key) public view returns(Post memory){
+        
+    //         return  singleUserPostList[key][singleUserPostList[key].length-1]; 
+        
+    // } 
 
+    //Arishsssssssss
+    function tipPostOwner(uint256 _id) external payable {
+        // Make sure the id is valid
+        require(_id > 0 && _id <= postCount, "Invalid post id");
+        require(allposts[_id-1].userAddress != msg.sender, "Cannot tip your own post");
+        // Fetch the post
+        
+        address payable user = allposts[_id-1].userAddress;
+        // Pay the author by sending them Ether
+        user.transfer(msg.value);
+        // Increment the tip amount
+        allposts[_id-1].tipAmount += msg.value;
+
+    //    for(uint256 i = 0; i < singleUserPostList[msg.sender].length; i++){ 
+    //         if(singleUserPostList[msg.sender][i].id == _id){
+    //             singleUserPostList[msg.sender][i].tipAmount += msg.value;
+    //             //need to reviewCode
+    //             break;
+    //         }
+    //      } 
+
+            for(uint256 i=0; i < userList[user].myPosts.length;i++){
+                if(userList[user].myPosts[i].id == _id){
+                    userList[user].myPosts[i].tipAmount += msg.value;
+                    break;
+                }
+            }
+        
+    }
+    
+    struct LikedExsistence{
+        uint index;
+        bool exists;
+    }
+
+    function checkIfLikedByExists(string[] memory likedBy, string memory username) public pure returns (LikedExsistence memory) 
+    {
+        uint i = 0;
+        for (i = 0; i < likedBy.length; i++) {
+           if (keccak256(bytes(likedBy[i])) == keccak256(bytes(username))) {
+               return LikedExsistence(i,true);
+
+               //break;
+            }
+        }
+        return LikedExsistence(0,false);
+    }
+    //increment like Count
+   function incrementLike(uint  post_id) external returns (bool)
+   { 
+     require(post_id > 0 && post_id <= postCount);
+     //require(allposts[post_id-1].userAddress != msg.sender, "Cannot like your own post");
+     //require(!checkIfLikedByExists(allposts[post_id-1].likedByUser,userList[msg.sender].username),"You have already liked it");
+        uint postIndex = 0;
+        LikedExsistence memory liked = checkIfLikedByExists(allposts[post_id-1].likedByUser,userList[msg.sender].username);
+        if (liked.exists == false){
+            // Increment the like post
+            //allposts[post_id-1].likeCount++;
+            allposts[post_id-1].likeCount++;
+
+            for(uint256 i=0; i < userList[allposts[post_id-1].userAddress].myPosts.length;i++){
+                if(userList[allposts[post_id-1].userAddress].myPosts[i].id == post_id){
+                    userList[allposts[post_id-1].userAddress].myPosts[i].likeCount++;
+                    postIndex = i;
+                    break;
+                }
+            }
+            // allposts[post_id-1].likedByUser[allposts[post_id-1].likeCount]=userList[msg.sender].name;
+            allposts[post_id-1].likedByUser.push(userList[msg.sender].username);
+            return true;
+        }
+        else{
+            
+            //decrementing the likeCount
+            userList[allposts[post_id-1].userAddress].myPosts[postIndex].likeCount--;
+            //putting the user on the end of the array so that it can be popped frfom the likedByUser array 
+            string memory temp = allposts[post_id-1].likedByUser[liked.index];
+            allposts[post_id-1].likedByUser[liked.index] = allposts[post_id-1].likedByUser[allposts[post_id-1].likedByUser.length - 1];
+            allposts[post_id-1].likedByUser[allposts[post_id-1].likedByUser.length - 1] = temp;
+
+            allposts[post_id-1].likedByUser.pop();
+            return false;
+        }
+   }
+
+    function getOneUserPosts(address userAddress) public view returns(Post [] memory){
+        return userList[userAddress].myPosts;
+        
+    }
+    function getTipAmountByPostId(uint post_id) public view returns(uint256){
+        return allposts[post_id-1].tipAmount;
+    }
     
     receive() external payable {}
 }

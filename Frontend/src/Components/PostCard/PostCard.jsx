@@ -1,7 +1,17 @@
-import React from 'react';
+import React,{useContext, useEffect, useState} from 'react';
 import './PostCard.css';
+import { InscribleContext } from '../../Context/Context';
 
-const PostCard = ({ username, address, file, caption, imageText, likeCount }) => {
+const PostCard = ({ username, address, file, caption, imageText, likeCount, postId,tipAmount }) => {
+    const [isliked,setIsLiked] = useState(false);
+    const { like,tip,tipAmountState,setTipAmountState } = useContext(InscribleContext);
+    console.log("it's tipAmount  type  ", typeof(tipAmount));
+    console.log("it's tipAmount  ", parseInt(tipAmount._hex, 16) / 10 ** 18);
+    console.log("Post_id   ",  postId.toNumber());
+    console.log("likeCount ",  likeCount );
+    //setTipAmountState(parseInt(tipAmount._hex, 16) / 10 ** 18);
+    console.log("tipAmountStatettttttttttttttttttt",tipAmountState);
+    
     return (
         <div className='card'>
             <div className="card-header">
@@ -20,10 +30,12 @@ const PostCard = ({ username, address, file, caption, imageText, likeCount }) =>
             </div>
 
             <div className="card-content">
-                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" className="heart" viewBox="0 0 20 20">
-                    <path d="m 10 5 a 1 1 0 0 0 -8 5 l 8 9 l 8 -9 a -1 -1 0 0 0 -8 -5" fill='white' stroke='black'></path>
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" className="heart" viewBox="0 0 20 20" onClick={() => {like(postId.toNumber())}}>
+                    <path d="m 10 5 a 1 1 0 0 0 -8 5 l 8 9 l 8 -9 a -1 -1 0 0 0 -8 -5" fill={isliked? 'red':'white'} stroke='black'></path>
                 </svg>
-                <button className='card-content-tip'>Tip 0.1eth</button>
+                <button className='card-content-tip' onClick={() => {tip(postId.toNumber())}}>Tip 0.1eth</button>
+                
+                <p>{tipAmount}</p>
                 <p>{likeCount}</p>
                 <h5>{username}</h5>
                 <p>{caption}</p>

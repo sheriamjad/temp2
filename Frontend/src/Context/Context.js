@@ -40,6 +40,7 @@ export const InscribleProvider = ({ children }) => {
   const [userList, setUserLists] = useState([]);
   const [friendLists, setFriendLists] = useState([]);
   const [error, setError] = useState("");
+  const [tipAmountState,setTipAmountState] = useState(0);
 
   //FUNCTION TO GET THE CONNECTED ACCOUNT
   const ConnectWallet = async () => {
@@ -130,6 +131,33 @@ export const InscribleProvider = ({ children }) => {
     }
   };
 
+  //arishaaaaaaas function
+  const tip = async (post_id) => {
+    // tip post owner
+      await ConnectWallet();
+      await (
+      await contract.tipPostOwner(post_id, {
+        value: ethers.utils.parseEther("0.00001"),
+      })
+     ).wait();
+
+    const tipAmount = await contract.getTipAmountByPostId(post_id)
+    console.log('Data:', parseInt(tipAmount._hex, 16) / 10 ** 18);
+    setTipAmountState(parseInt(tipAmount._hex, 16) / 10 ** 18);
+    
+     //console.log("tipppppppppppppppp",parseInt(tipAmount._hex, 16) / 10 ** 18);
+     //setTipAmountState(parseInt(tipAmount._hex, 16) / 10 ** 18);
+     //GetPostByUser(connectedAccount);
+    
+  };
+
+  const like = async (post_id) => {
+    const liked = await(await contract.incrementLike(post_id)).wait();
+    console.log("Liked.........." , liked);
+    GetPostByUser(connectedAccount);
+
+  };
+
   const RegisterUser = async (username) => {
     const createdUser = await contract.createAccount(username);
     await createdUser.wait();
@@ -142,6 +170,7 @@ export const InscribleProvider = ({ children }) => {
     } else {
       return false;
     }
+
   };
 
   const signInState = (state) => {
@@ -186,7 +215,6 @@ export const InscribleProvider = ({ children }) => {
   const GetAllPosts = async () => {
     setIsLoading(true);
     const Posts = await contract.GetAllPosts();
-
     setAllPosts(Posts);
     setIsLoading(false);
   };
@@ -196,13 +224,23 @@ export const InscribleProvider = ({ children }) => {
     console.log(address);
     console.log(connectedAccount);
     setIsLoading(true);
-    const Posts = await contract.getSingleUserPost(address);
-    console.log("possssssssssssssst");
-    console.log(Posts);
-    console.log("Context post" + Posts);
-    console.log("Context post wait " + Posts);
+    //const followingsCount = await contract.getMyFollowingsList(address);
+   // console.log("FollowingsCount.....",followingsCount);
+
+
+    const followingsList = await contract.getMyFollowingsList(address);
+    console.log("followings address",followingsList);
+    let Posts = [];
+    for (let i = 0 ; i<followingsList.length ; i++){
+        //let PostsOfOneUser = await contract.getOneUserPosts(followingsList[i]);
+        let PostsOfOneUser = await contract.getOneUserPosts(followingsList[i].pubkey);
+        for (let j = 0 ; j < PostsOfOneUser.length ; j++){
+           Posts.push(PostsOfOneUser[j]);
+        }
+    }
     setSingleUserPost(Posts);
     setIsLoading(false);
+  
   };
 
   useEffect(() => {
@@ -230,6 +268,10 @@ export const InscribleProvider = ({ children }) => {
         setFriendLists,
         addFriends,
         removeFriends,
+        tip,
+        like,
+        setTipAmountState,
+        tipAmountState,
         isMetamask,
         connectedAccount,
         contract,
@@ -240,6 +282,7 @@ export const InscribleProvider = ({ children }) => {
         isLoading,
         friendLists,
         userList,
+        
         checkAlreadyFriend,
       }}
     >

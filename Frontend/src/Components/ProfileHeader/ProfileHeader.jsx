@@ -9,6 +9,9 @@ const ProfileHeader = ({}) => {
   const [isPost, setIsPost] = useState(true);
   const [isFollower, setIsFollower] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowingBtn, setIsFollowingBtn] = useState(false);
+  const [followerListing, setfollowerListing] = useState([]);
+  const [followingList, setfollowingList] = useState([]);
   const {
     userLists,
     addFriends,
@@ -18,79 +21,46 @@ const ProfileHeader = ({}) => {
     connectedAccount,
     contract,
   } = useContext(InscribleContext);
-
-  const users = [
-    {
-      name: "Anna Wintour",
-      pic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
-      address: "0x00030503554385247875847200048nt2457vn",
-    },
-    {
-      name: "Alia Chaudhary",
-      pic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
-      address: "0x00030503554385247875847200048nt2457vn",
-    },
-    {
-      name: "Nathan Freeman",
-      pic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
-      address: "0x00030503554385247875847200048nt2457vn",
-    },
-    {
-      name: "Samuel Drake",
-      pic: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
-      address: "0x00030503554385247875847200048nt2457vn",
-    },
-  ];
-  const { username, address } = useParams();
-
   useEffect(() => {
     const checkFriends = async () => {
-      const followingStatus = await checkAlreadyFriend({
+      const isFollowStatus = await checkAlreadyFriend({
         connectedAccountAddress: connectedAccount,
         accountAddress: address,
       });
-      setIsFollowing(followingStatus);
+      setIsFollowingBtn(isFollowStatus);
+      console.log("isFoolowSTatus    " + isFollowStatus);
     };
 
     checkFriends();
   }, [connectedAccount, contract]);
 
+  const { username, address } = useParams();
+  const getFollowersList = async () => {
+    const followerListing = await contract.getMyFollowersList(address);
+    setfollowerListing(followerListing);
+  };
+
+  const getMyFollowingsList = async () => {
+    const followingList = await contract.getMyFollowingsList(address);
+    setfollowingList(followingList);
+  };
 
   // Function to handle the follow/unfollow action
   const handleFollowToggle = () => {
-    if (isFollowing) {
+    if (isFollowingBtn) {
       // Perform the unfollow action
       // ...
       removeFriends({ accountAddress: address });
 
-      setIsFollowing(false); // Update the state to reflect unfollowing
+      setIsFollowingBtn(false); // Update the state to reflect unfollowing
     } else {
       // Perform the follow action
       // ...
       addFriends({ accountAddress: address });
 
-      setIsFollowing(true); // Update the state to reflect following
+      setIsFollowingBtn(true); // Update the state to reflect following
     }
   };
-  
-  // useEffect(() => {
-  //   const checkFriends = async () => {
-  //     try {
-  //       await ConnectWallet();
-  //       const checkUserFriend = await checkAlreadyFriend(
-  //         connectedAccount,
-  //         address
-  //       );
-  //       console.log("checkUserFriend: ", checkUserFriend);
-  //       setIsFollowing(checkUserFriend);
-  //     } catch (error) {
-  //       console.error("Error occurred while checking friends:", error);
-  //       // Handle the error appropriately, such as setting an error state
-  //     }
-  //   };
-
-  //   checkFriends();
-  // }, []);
 
   return (
     <>
@@ -109,7 +79,7 @@ const ProfileHeader = ({}) => {
               {username}
             </p>
             <button onClick={handleFollowToggle}>
-              {isFollowing ? "Unfollow" : "Follow"}
+              {isFollowingBtn ? "Unfollow" : "Follow"}
             </button>
           </div>
           <div className="profile-header_content-info">
@@ -118,9 +88,9 @@ const ProfileHeader = ({}) => {
               <span
                 className={isPost ? "bold-7" : ""}
                 onClick={() => {
-                  // setIsFollower(false);
-                  // setIsFollowing(false);
-                   setIsPost(true);
+                  setIsFollower(false);
+                  setIsFollowing(false);
+                  setIsPost(true);
                 }}
               >
                 {" "}
@@ -129,28 +99,13 @@ const ProfileHeader = ({}) => {
             </div>
             <div>
               <span className="bold-5">12</span>
-              <span className={isFollower ? "bold-7" : ""}
-
+              <span
+                className={isFollower ? "bold-7" : ""}
                 onClick={() => {
-                  {isFollower && (
-                    <div className="profile-usercard-container">
-                      <div className="profile-usercard-header">
-                        <h3>Following</h3>
-                      </div>
-                      <div className="profile-usercard-body">
-                        {users.map((item, i) => {
-                          return (
-                            <ProfileUserCard
-                              userName={item.name}
-                              profilePic={item.pic}
-                              address={item.address}
-                              key={i}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                  setIsFollower(true);
+                  setIsFollowing(false);
+                  setIsPost(false);
+                  getFollowersList();
                 }}
               >
                 {" "}
@@ -162,25 +117,10 @@ const ProfileHeader = ({}) => {
               <span
                 className={isFollowing ? "bold-7" : ""}
                 onClick={() => {
-                  {isFollowing && (
-                    <div className="profile-usercard-container">
-                      <div className="profile-usercard-header">
-                        <h3>Following</h3>
-                      </div>
-                      <div className="profile-usercard-body">
-                        {users.map((item, i) => {
-                          return (
-                            <ProfileUserCard
-                              userName={item.name}
-                              profilePic={item.pic}
-                              address={item.address}
-                              key={i}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
+                  setIsFollower(false);
+                  setIsFollowing(true);
+                  setIsPost(false);
+                  getMyFollowingsList();
                 }}
               >
                 {" "}
@@ -193,13 +133,13 @@ const ProfileHeader = ({}) => {
 
       {isPost && <ProfilePosts />}
 
-      {/* {isFollower && (
+      {isFollower && (
         <div className="profile-usercard-container">
           <div className="profile-usercard-header">
             <h3>Followers</h3>
           </div>
           <div className="profile-usercard-body">
-            {users.map((item, i) => {
+            {followerListing.map((item, i) => {
               return (
                 <ProfileUserCard
                   userName={item.name}
@@ -211,15 +151,15 @@ const ProfileHeader = ({}) => {
             })}
           </div>
         </div>
-      )} */}
+      )}
 
-      {/* {isFollowing && (
+      {isFollowing && (
         <div className="profile-usercard-container">
           <div className="profile-usercard-header">
             <h3>Following</h3>
           </div>
           <div className="profile-usercard-body">
-            {users.map((item, i) => {
+            {followingList.map((item, i) => {
               return (
                 <ProfileUserCard
                   userName={item.name}
@@ -231,7 +171,7 @@ const ProfileHeader = ({}) => {
             })}
           </div>
         </div>
-      )} */}
+      )}
     </>
   );
 };
