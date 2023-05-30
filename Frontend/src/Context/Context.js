@@ -135,10 +135,7 @@ export const InscribleProvider = ({ children }) => {
   const tip = async (post_id) => {
     // tip post owner
       await ConnectWallet();
-      await (
-      await contract.tipPostOwner(post_id, {
-        value: ethers.utils.parseEther("0.00001"),
-      })
+      await (await contract.tipPostOwner(post_id, {value: ethers.utils.parseEther("0.00001"),})
      ).wait();
 
     const tipAmount = await contract.getTipAmountByPostId(post_id)
@@ -146,7 +143,6 @@ export const InscribleProvider = ({ children }) => {
     setTipAmountState(parseInt(tipAmount._hex, 16) / 10 ** 18);
     
      //console.log("tipppppppppppppppp",parseInt(tipAmount._hex, 16) / 10 ** 18);
-     //setTipAmountState(parseInt(tipAmount._hex, 16) / 10 ** 18);
      //GetPostByUser(connectedAccount);
     
   };
@@ -200,7 +196,8 @@ export const InscribleProvider = ({ children }) => {
     if (username === _username) {
       setCurrentUsername(_username);
       return true;
-    } else {
+    } 
+    else {
       return false;
     }
   };
@@ -224,8 +221,9 @@ export const InscribleProvider = ({ children }) => {
     console.log(address);
     console.log(connectedAccount);
     setIsLoading(true);
+
     //const followingsCount = await contract.getMyFollowingsList(address);
-   // console.log("FollowingsCount.....",followingsCount);
+    //console.log("FollowingsCount.....",followingsCount);
 
 
     const followingsList = await contract.getMyFollowingsList(address);

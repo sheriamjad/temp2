@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 
 const Home = () => {
     const navigate = useNavigate();
-    const { GetPostByUser, isLoading, singleUserPost, connectedAccount, getSignInState, ConnectWallet, contract,tipAmountState,setTipAmountState } = useContext(InscribleContext);
+    const { GetPostByUser, isLoading, singleUserPost, connectedAccount, getSignInState, ConnectWallet, contract} = useContext(InscribleContext);
     const notify= (msg)=> toast.error(msg);
     const [isSigned, setIsSigned] = useState(false);
 
@@ -48,7 +48,7 @@ const Home = () => {
                        (singleUserPost.length > 0 ? 
                             (
                             singleUserPost.map((item) => {
-                                setTipAmountState(parseInt(item.tipAmount._hex, 16) / 10 ** 18);
+                                //setTipAmountState(parseInt(item.tipAmount._hex, 16) / 10 ** 18);
                                 return <PostCard 
                                         username={item.createrName}
                                         address={item.userAddress} 
@@ -58,7 +58,7 @@ const Home = () => {
                                         likeCount={item.likeCount.toNumber()}
                                         key={item.id}
                                         postId={item.id}
-                                        tipAmount = {tipAmountState}
+                                        tipAmount = {item.tipAmount}
                                        />
                             }))  
                             :

@@ -75,6 +75,13 @@ svg>path:hover{
     cursor: pointer;
 }
 
+.tip{
+    position: absolute;
+    right: 10px;
+    top: 25px;
+    color: rgb(173, 173, 173);
+}
+
 .card-content-tip:hover{
     color: rgb(0, 153, 255);
 }

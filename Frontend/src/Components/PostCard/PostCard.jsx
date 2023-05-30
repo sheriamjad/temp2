@@ -1,16 +1,48 @@
 import React,{useContext, useEffect, useState} from 'react';
 import './PostCard.css';
 import { InscribleContext } from '../../Context/Context';
+import { ethers } from "ethers";
 
 const PostCard = ({ username, address, file, caption, imageText, likeCount, postId,tipAmount }) => {
     const [isliked,setIsLiked] = useState(false);
-    const { like,tip,tipAmountState,setTipAmountState } = useContext(InscribleContext);
+    const { connectedAccount,contract} = useContext(InscribleContext);
     console.log("it's tipAmount  type  ", typeof(tipAmount));
     console.log("it's tipAmount  ", parseInt(tipAmount._hex, 16) / 10 ** 18);
     console.log("Post_id   ",  postId.toNumber());
     console.log("likeCount ",  likeCount );
+    const [tipAmountState,setTipAmountState] = useState(0);
+    const[likeCountState,setLikeCountState]=useState(0);
+
     //setTipAmountState(parseInt(tipAmount._hex, 16) / 10 ** 18);
-    console.log("tipAmountStatettttttttttttttttttt",tipAmountState);
+    //console.log("tipAmountStatettttttttttttttttttt",tipAmountState);
+
+
+    useEffect(()=>{
+        setTipAmountState(parseInt(tipAmount._hex, 16) / 10 ** 18)
+        setLikeCountState(parseInt(likeCount._hex, 16) / 10 ** 18)
+
+    },[connectedAccount,contract]);
+
+    const tip = async (post_id) => {
+        // tip post owner
+          
+          await (await contract.tipPostOwner(post_id, {value: ethers.utils.parseEther("0.00001"),})
+         ).wait();
+    
+        const tipAmount = await contract.getTipAmountByPostId(post_id)
+        console.log('Data:', parseInt(tipAmount._hex, 16) / 10 ** 18);
+        setTipAmountState(parseInt(tipAmount._hex, 16) / 10 ** 18);
+        
+         //console.log("tipppppppppppppppp",parseInt(tipAmount._hex, 16) / 10 ** 18);
+         //GetPostByUser(connectedAccount);
+        
+      };
+
+      const like = async (post_id) => {
+        const liked = await(await contract.incrementLike(post_id)).wait();
+        console.log("Liked.........." , liked);
+        setLikeCountState(parseInt(likeCount._hex, 16) / 10 ** 18)
+      };
     
     return (
         <div className='card'>
@@ -35,7 +67,9 @@ const PostCard = ({ username, address, file, caption, imageText, likeCount, post
                 </svg>
                 <button className='card-content-tip' onClick={() => {tip(postId.toNumber())}}>Tip 0.1eth</button>
                 
-                <p>{tipAmount}</p>
+                {/* <p>{parseInt(tipAmount._hex, 16) / 10 ** 18}</p> */}
+               { console.log("tipppppppppppp"+tipAmountState)}
+                <small className='tip'>{tipAmountState}</small>
                 <p>{likeCount}</p>
                 <h5>{username}</h5>
                 <p>{caption}</p>

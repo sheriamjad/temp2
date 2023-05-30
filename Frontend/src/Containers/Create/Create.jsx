@@ -22,6 +22,7 @@ const Create = () => {
         caption: "",
         imgTxt: ""
     });
+    
 
     const handleInput = (e) => {
         const name = e.target.name;
